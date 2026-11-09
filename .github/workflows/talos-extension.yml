@@ -2,7 +2,7 @@ name: Talos extension
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ['v*']
   pull_request:
 
