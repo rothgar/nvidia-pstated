@@ -191,4 +191,4 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 ```
 
 The `.github/workflows/talos-extension.yml` workflow does this automatically on
-pushes to `master` and on tags.
+pushes to `main` and on tags.
