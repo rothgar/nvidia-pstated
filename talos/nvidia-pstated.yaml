@@ -1,0 +1,40 @@
+# Talos extension service definition for nvidia-pstated.
+# Modeled after the nvidia-persistenced service from siderolabs/extensions.
+name: nvidia-pstated
+container:
+  entrypoint: /usr/bin/nvidia-pstated
+  mounts:
+    # device files
+    - source: /dev
+      destination: /dev
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+    # dynamic loader, for amd64 it's /lib64/ld-linux-x86-64.so.2
+    - source: /lib64
+      destination: /lib64
+      type: bind
+      options:
+        - bind
+        - ro
+    # dynamic loader, for arm64 it's /lib/ld-linux-aarch64.so.1
+    - source: /lib
+      destination: /lib
+      type: bind
+      options:
+        - bind
+        - ro
+    # glibc and nvidia libraries (libnvidia-ml.so.1, libnvidia-api.so.1)
+    - source: /usr/local/lib
+      destination: /usr/local/lib
+      type: bind
+      options:
+        - bind
+        - ro
+depends:
+  # wait for udevd so the nvidia device files exist
+  - service: udevd
+  - path: /sys/bus/pci/drivers/nvidia
+restart: always

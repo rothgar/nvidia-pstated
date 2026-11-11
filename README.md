@@ -161,6 +161,10 @@ RestartSec=1s
 WantedBy=multi-user.target
 ```
 
+### Talos Linux
+
+A Talos system extension is available as `ghcr.io/rothgar/nvidia-pstated`. See [talos/README.md](talos/README.md) for how to build a custom Talos image that includes it with Imager.
+
 ### Windows service
 
 Place `nvidia-pstated.exe` in the desired location (for example, `C:\Program Files\nvidia-pstated\nvidia-pstated.exe`).
