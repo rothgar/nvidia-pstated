@@ -26,7 +26,7 @@ COPY src/ src/
 
 # libnvidia-ml.so.1 is linked dynamically, libnvidia-api.so.1 is dlopen()ed.
 # Both are provided on the Talos host by the nvidia-container-toolkit extension
-# in /usr/local/lib, which is in the default search path of the Talos glibc extension.
+# in /usr/local/lib, along with the glibc it bundles (/usr/local/lib is glibc's default search path).
 RUN gcc -O2 -Wall -o /nvidia-pstated \
       -isystem /opt/nvapi-include \
       src/main.c src/nvapi.c src/utils.c \

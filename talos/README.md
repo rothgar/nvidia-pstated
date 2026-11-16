@@ -15,9 +15,8 @@ same image:
 
 | Extension | Provides |
 |-----------|----------|
-| `siderolabs/glibc` | glibc and the dynamic loader |
 | `siderolabs/nvidia-open-gpu-kernel-modules-production` (or `nonfree-kmod-nvidia-production`) | NVIDIA kernel modules |
-| `siderolabs/nvidia-container-toolkit-production` | `libnvidia-ml.so.1` and `libnvidia-api.so.1` |
+| `siderolabs/nvidia-container-toolkit-production` | `libnvidia-ml.so.1`, `libnvidia-api.so.1`, and the glibc runtime they need |
 
 You can use the `-lts` variants instead of `-production`. The kernel module and
 container toolkit extensions must be on the same driver branch.
@@ -31,20 +30,29 @@ to build boot media and installer images that include this one.
 ### 1. Find matching extension versions
 
 Each Talos release pins the official extension versions it was built with.
-Look them up for the Talos version you want:
+The easiest way to look them up for the Talos version you want is
+`talosctl images talos-bundle`. It lists every image in a Talos release,
+including the official system extensions with their digests:
 
 ```sh
 TALOS_VERSION=v1.14.5
 
+talosctl images talos-bundle ${TALOS_VERSION} --overlays=false \
+  | grep -E 'nvidia-open-gpu-kernel-modules-production|nvidia-container-toolkit-production'
+```
+
+If you don't have `talosctl`, you can read the same list from the extensions
+index image with `crane`:
+
+```sh
 crane export ghcr.io/siderolabs/extensions:${TALOS_VERSION} - \
   | tar x -O image-digests \
-  | grep -E '/glibc:|nvidia-open-gpu-kernel-modules-production|nvidia-container-toolkit-production'
+  | grep -E 'nvidia-open-gpu-kernel-modules-production|nvidia-container-toolkit-production'
 ```
 
 Example output for `v1.14.5`:
 
 ```text
-ghcr.io/siderolabs/glibc:2.44@sha256:eb4460f4...
 ghcr.io/siderolabs/nvidia-container-toolkit-production:595.91.07-v1.19.1@sha256:04324c16...
 ghcr.io/siderolabs/nvidia-open-gpu-kernel-modules-production:595.91.07-v1.14.5@sha256:09e721ce...
 ```
@@ -61,7 +69,6 @@ docker run --rm -t \
   -v "$PWD/_out:/out" -v /dev:/dev --privileged \
   ghcr.io/siderolabs/imager:${TALOS_VERSION} installer \
   --arch amd64 \
-  --system-extension-image ghcr.io/siderolabs/glibc:2.44@sha256:<digest> \
   --system-extension-image ghcr.io/siderolabs/nvidia-open-gpu-kernel-modules-production:595.91.07-${TALOS_VERSION}@sha256:<digest> \
   --system-extension-image ghcr.io/siderolabs/nvidia-container-toolkit-production:595.91.07-v1.19.1@sha256:<digest> \
   --system-extension-image ghcr.io/rothgar/nvidia-pstated:${PSTATED_VERSION}
@@ -90,7 +97,7 @@ docker run --rm -t \
   -v "$PWD/_out:/out" -v /dev:/dev --privileged \
   ghcr.io/siderolabs/imager:${TALOS_VERSION} iso \
   --arch amd64 \
-  --system-extension-image ... # same four images as above
+  --system-extension-image ... # same three images as above
 ```
 
 Use `--arch arm64` for ARM machines.
@@ -148,7 +155,6 @@ input:
   baseInstaller:
     imageRef: ghcr.io/siderolabs/installer-base:v1.14.5
   systemExtensions:
-    - imageRef: ghcr.io/siderolabs/glibc:2.44@sha256:<digest>
     - imageRef: ghcr.io/siderolabs/nvidia-open-gpu-kernel-modules-production:595.91.07-v1.14.5@sha256:<digest>
     - imageRef: ghcr.io/siderolabs/nvidia-container-toolkit-production:595.91.07-v1.19.1@sha256:<digest>
     - imageRef: ghcr.io/rothgar/nvidia-pstated:latest

@@ -5,7 +5,7 @@ metadata:
   author: rothgar
   description: |
     nvidia-pstated daemon that automatically manages the performance states of NVIDIA GPUs.
-    Requires the glibc and nvidia-container-toolkit extensions.
+    Requires the nvidia-container-toolkit and NVIDIA kernel module extensions.
   compatibility:
     talos:
       version: ">= v1.9.0"
