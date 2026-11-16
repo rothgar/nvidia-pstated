@@ -31,11 +31,21 @@ to build boot media and installer images that include this one.
 ### 1. Find matching extension versions
 
 Each Talos release pins the official extension versions it was built with.
-Look them up for the Talos version you want:
+The easiest way to look them up for the Talos version you want is
+`talosctl images talos-bundle`. It lists every image in a Talos release,
+including the official system extensions with their digests:
 
 ```sh
 TALOS_VERSION=v1.14.5
 
+talosctl images talos-bundle ${TALOS_VERSION} --overlays=false \
+  | grep -E 'nvidia-open-gpu-kernel-modules-production|nvidia-container-toolkit-production'
+```
+
+If you don't have `talosctl`, you can read the same list from the extensions
+index image with `crane`:
+
+```sh
 crane export ghcr.io/siderolabs/extensions:${TALOS_VERSION} - \
   | tar x -O image-digests \
   | grep -E '/glibc:|nvidia-open-gpu-kernel-modules-production|nvidia-container-toolkit-production'
